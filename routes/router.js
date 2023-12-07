@@ -1,14 +1,20 @@
 import express from 'express';
 import users from '../modules/users/router.js'
-// import books from '../modules/books/router.js'
-// import history from '../modules/book_history/router.js'
+import schedule from '../modules/schedule/router.js'
+import todo from '../modules/todo/router.js'
+import announcement from '../modules/announcement/router.js'
+import certificate from '../modules/certificate/router.js';
+import comment from '../modules/comment/router.js';
+import logbook from '../modules/logbook/router.js';
+// import openSchedule from '../../middleware/openSchedule.js';
 const router = express.Router()
-router.get('/', (req, res) => {
-  res.send('Login')
-})
 
 router.use('/', users)
-// router.use('/books', books)
-// router.use('/books', history)
+router.use('/schedule', schedule)
+router.use('/todo', todo)
+router.use('/announcement', announcement)
+router.use('/certificate', certificate)
+router.use('/comment', comment)
+router.use('/logbook', logbook)
 
 export default router

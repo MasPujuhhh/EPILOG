@@ -26,7 +26,13 @@ const User = sequelize.define('users', {
         role: {
           type: DataTypes.INTEGER,
           allowNull:false,
+          
         },
+        // isHost: {
+        //   type: DataTypes.BOOLEAN,
+        //   default:false,
+        //   // allowNull:true,
+        // },
         expired_at: {
             type: DataTypes.DATE,
             allowNull:true

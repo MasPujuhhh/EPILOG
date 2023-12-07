@@ -8,7 +8,7 @@ const Company = sequelize.define('company', {
           type: DataTypes.STRING,
           primaryKey: true,
         },
-        name: {
+        company_name: {
           type: DataTypes.STRING,
           allowNull: false,
         }

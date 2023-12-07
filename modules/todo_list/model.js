@@ -2,6 +2,7 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../config/connection.js";
 
 import TodoModel from "../todo/model.js";
+import ListModel from "../list/model.js";
 
 // class User extends Model {}
 const TodoList = sequelize.define('todo_list', {
@@ -10,12 +11,12 @@ const TodoList = sequelize.define('todo_list', {
           type: DataTypes.STRING,
           primaryKey: true,
         },
-        description: {
-          type: DataTypes.TEXT,
+        todo_id: {
+          type: DataTypes.STRING,
           allowNull: false,
         },
-        done: {
-          type: DataTypes.BOOLEAN,
+        list_id: {
+          type: DataTypes.STRING,
           default:false,
           allowNull: false,
         }
@@ -25,7 +26,11 @@ const TodoList = sequelize.define('todo_list', {
       }
 )
 
-TodoList.belongsTo(TodoModel, { foreignKey: 'user_id' });
-TodoModel.hasMany(TodoList, { foreignKey: 'user_id' });
+TodoList.belongsTo(TodoModel, { foreignKey: 'todo_id' });
+TodoModel.hasMany(TodoList, { foreignKey: 'todo_id' });
+
+
+TodoList.belongsTo(ListModel, { foreignKey: 'list_id' });
+ListModel.hasMany(TodoList, { foreignKey: 'list_id' });
 
 export default TodoList

@@ -1,25 +1,22 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../config/connection.js";
 
-import UserModel from "../users/model.js";
+import TodoModel from "../todo/model.js";
 
 // class User extends Model {}
-const Forum = sequelize.define('forum', {
+const TodoList = sequelize.define('list', {
         // Model attributes are defined here
         id: {
           type: DataTypes.STRING,
           primaryKey: true,
         },
-        message: {
-          type: DataTypes.STRING,
-          allowNull: false,
-        },
-        source: {
+        description: {
           type: DataTypes.TEXT,
           allowNull: false,
         },
-        link: {
-          type: DataTypes.TEXT,
+        done: {
+          type: DataTypes.BOOLEAN,
+          default:false,
           allowNull: false,
         }
       }, {
@@ -28,7 +25,7 @@ const Forum = sequelize.define('forum', {
       }
 )
 
-Forum.belongsTo(UserModel, { foreignKey: 'user_id' });
-UserModel.hasMany(Forum, { foreignKey: 'user_id' });
+TodoList.belongsTo(TodoModel, { foreignKey: 'todo_id' });
+TodoModel.hasMany(TodoList, { foreignKey: 'todo_id' });
 
-export default Forum
+export default TodoList

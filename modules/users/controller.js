@@ -1,27 +1,22 @@
 import User from './model.js';
+import UserProfile from '../user_profile/model.js'
 import  enkrip  from '../../helper/enkrip.js';
 import jwt from '../../helper/jwt.js';
 import { nanoid } from 'nanoid'
 import sequelize from '../../config/connection.js';
 import { QueryTypes } from 'sequelize';
 
+import userSchema from '../../helper/validator/user.js';
+import loginSchema from '../../helper/validator/login.js';
+import updateExpSchema from '../../helper/validator/update_exp_user.js'
+
 
 class Controller{
     static async login(req, res){
         try {
-          
-            let {username, password} = req.body;
-            let status = true;
-            if(!username){
-                res.status(500).json({pesan:"username tidak boleh kosong!"});
-                status=false;
-            }
-            if(!password){
-                res.status(500).json({pesan:"Password tidak boleh kosong!"});
-                status=false;
-            }
-
-            if(status){
+            const validator = loginSchema.validate(req.body)
+            if (!validator.error) {
+                let {username, password} = req.body;
                 let hasil = await User.findAll({
                     where:{
                         username:username
@@ -32,45 +27,207 @@ class Controller{
                     if(cekPass){
                         res.status(200).json({pesan:"berhasil!", data:hasil[0].dataValues, token:jwt.enkrip(hasil[0].dataValues)});
                     }else{
-                        res.status(500).json({pesan:"Password anda salah!"});
+                        res.status(500).json({pesan:"Username / Password Wrong!!"});
                     }
                 }else{
-                    res.status(500).json({pesan:"Username tidak terdaftar!"});
+                    res.status(500).json({pesan:"Username / Password Wrong!!"});
                 }
-              
+            } else {
+                console.log(validator.error.details[0].message)
+                throw new Error(`${validator.error.details[0].message}`)
             }
         } catch (error) {
-            console.log(error);
-            res.status(500).json({pesan:error});
-                
+            res.status(500).json({error:error.message});     
         }
     }
 
+    // SUPERADMIN
     static async createSuper(req, res){
-        try {          
+        try {
+            const validator = userSchema.validate(req.body)
+            if (validator.error) throw new Error(validator.error.details[0].message)
+
             let {username, password, email} = req.body;
-            let status = true;
-            if(!username){
-                res.status(500).json({pesan:"username tidak boleh kosong!"});
-                status=false;
-            }
-            if(!password){
-                res.status(500).json({pesan:"Password tidak boleh kosong!"});
-                status=false;
-            }
-            if(!email){
-                res.status(500).json({pesan:"email tidak boleh kosong!"});
-                status=false;
-            }
-    
-            if(status){
-                password = await enkrip.enkrip(password);
-                let hasil = await User.create({id: nanoid(),username, password, email, role:3, expired_at:new Date()});
-                res.status(200).json({pesan:"berhasil!", data:hasil });
-            }
+            password = await enkrip.enkrip(password);
+            let hasil = await User.create({id: nanoid(),username, password, email, role:2,isHost:true});
+            let profile = await UserProfile.create({id: nanoid(), user_id:hasil.id})
+
+            res.status(200).json({pesan:"berhasil!", data:{user:hasil, user_profile:profile} });
+
         } catch (error) {
-            res.status(500).json({pesan:error.message});
-                
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }  
+        }
+    }
+
+    static async createAdmin(req, res){
+        try {        
+            const validator = userSchema.validate(req.body)
+            if (validator.error) throw new Error(validator.error.details[0].message)
+
+            let {username, password, email} = req.body;
+        
+            password = await enkrip.enkrip(password);
+            let hasil = await User.create({id: nanoid(),username, password, email, role:1});
+            res.status(200).json({pesan:"berhasil!", data:hasil });
+
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }
+        }
+    }
+    static async getAdminAndUser(req, res){
+        try {
+            const hasil = await sequelize.query("SELECT * FROM users", { type: QueryTypes.SELECT });
+            res.status(200).json({status:'OK', data:hasil})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({code:490, message:error})
+        } 
+    }
+
+    // ADMIN
+    static async adminDashboard(req, res){
+        // try {
+        //     const hasil = await sequelize.query(`SELECT * from users where role != 2;`, { type: QueryTypes.SELECT });
+        //     res.status(200).json({status:'OK', data:hasil})
+        // } catch (error) {
+        //     console.log(error);
+        //     res.status(500).json({code:490, message:error})
+        // } 
+    }
+
+    static async createUser(req, res){
+        try {  
+            const validator = userSchema.validate(req.body)
+            if (validator.error) throw new Error(validator.error.details[0].message)
+
+            let {username, password, email} = req.body;
+           
+            password = await enkrip.enkrip(password);
+            let hasil = await User.create({id: nanoid(),username, password, email, role:0});
+            res.status(200).json({pesan:"berhasil!", data:hasil });
+
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }   
+        }
+    }
+
+    static async getDataUser(req, res){
+        try {
+            const hasil = await sequelize.query(`SELECT * from users where role != 2;`, { type: QueryTypes.SELECT });
+            res.status(200).json({status:'OK', data:hasil})
+        } catch (error) {
+            console.log(error);
+            res.status(500).json({code:490, message:error})
+        } 
+    }
+
+    static async updateExpiredUser(req, res){
+        try {
+            const validator = updateExpSchema.validate(req.body)
+            if (validator.error) throw new Error(validator.error.details[0].message)
+            let {user_id, expired_at} = req.body;
+            const hasil = await User.update({expired_at}, { where: { id: user_id }, returning: true, })
+            if (!hasil) throw new Error('data not found')
+            res.status(200).json({status:'OK', data:hasil[1][0]})
+
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }
+        }
+    }
+
+    static async editUserPassword(req, res){
+        try {
+            let {password, user_id} = req.body;
+            if (!password || !user_id) throw new Error('password and user_id required / cannot be null')
+            password = await enkrip.enkrip(password);
+            const hasil = await User.update({password}, { where: { id: user_id }, returning: true, })
+            if (!hasil) throw new Error('data not found')
+            res.status(200).json({status:'OK', data:hasil[1][0]})
+
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }
+        }
+    }
+
+    static async deleteUser(req, res){
+        try {
+            let {user_id} = req.body;
+            if (!user_id) throw new Error('user_id cannot be an empty field')
+            const hasil = await User.destroy({ where: { id: user_id }, returning: true })
+            if (hasil.length == 0) throw new Error('data not found')
+            console.log(hasil)
+            res.status(200).json({status:'OK', data:hasil[0].dataValues})
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }
+        }
+    }
+
+
+    // User
+    static async getDataUserById(req, res){
+        try {
+            const hasil = await User.findOne({ where: { id: req.user.id } });
+            if (!hasil) throw new Error('data not found')
+            res.status(200).json({status:'OK', data:hasil})
+        } catch (error) {
+            res.status(500).json({code:490, message:error.message})
+        } 
+    }
+
+    static async editUserById(req, res){
+        try {
+            let {email, username} = req.body;
+            const hasil = await User.update({email, username}, { where: { id: req.user.id }, returning: true, })
+            if (!hasil) throw new Error('data not found')
+            res.status(200).json({status:'OK', data:hasil[1][0]})
+
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }
+        }
+    }
+
+    static async editUserPasswordById(req, res){
+        try {
+            let {password} = req.body;
+            password = await enkrip.enkrip(password);
+            const hasil = await User.update({password}, { where: { id: req.user.id }, returning: true, })
+            if (!hasil) throw new Error('data not found')
+            res.status(200).json({status:'OK', data:hasil[1][0]})
+
+        } catch (error) {
+            if (error.name == 'SequelizeUniqueConstraintError') {
+                res.status(500).json({pesan:error.errors[0].message});
+            } else {
+                res.status(500).json({pesan:error.message});
+            }
         }
     }
 }

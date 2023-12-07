@@ -9,8 +9,9 @@ const Schedule = sequelize.define('schedule', {
           primaryKey: true,
         },
         date: {
-          type: DataTypes.STRING,
+          type: DataTypes.DATE,
           allowNull: false,
+          unique:true
         }
       }, {
         freezeTableName:true,

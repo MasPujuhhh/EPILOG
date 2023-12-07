@@ -7,14 +7,20 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "exports": {
+    "./types/utils.js": "./types/utils.js"
+  },
   "author": "puguh_aji",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "joi": "^17.11.0",
     "jsonwebtoken": "^9.0.2",
+    "moment-timezone": "^0.5.43",
     "nanoid": "^5.0.2",
     "ora": "^7.0.1",
     "pg": "^8.11.3",

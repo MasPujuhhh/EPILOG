@@ -11,9 +11,19 @@ const Logbook = sequelize.define('logbook', {
           type: DataTypes.STRING,
           primaryKey: true,
         },
-        description: {
-          type: DataTypes.TEXT,
+        user_id: {
+          type: DataTypes.STRING,
           allowNull: false,
+        },
+        schedule_id: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        description: {
+          type: DataTypes.TEXT
+        },
+        keterangan: {
+          type: DataTypes.INTEGER
         },
         status: {
           type: DataTypes.INTEGER,

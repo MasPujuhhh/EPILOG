@@ -10,6 +10,10 @@ const Notification = sequelize.define('notification', {
           type: DataTypes.STRING,
           primaryKey: true,
         },
+        user_id: {
+          type: DataTypes.STRING,
+          primaryKey: true,
+        },
         description: {
           type: DataTypes.TEXT,
           allowNull: false,

@@ -11,9 +11,16 @@ const Comment = sequelize.define('comment', {
           type: DataTypes.STRING,
           primaryKey: true,
         },
-        comment: {
-          type: DataTypes.TEXT,
+        user_id: {
+          type: DataTypes.STRING,
           allowNull: false,
+        },
+        logbook_id: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
+        comment: {
+          type: DataTypes.TEXT
         }
       }, {
         freezeTableName:true,

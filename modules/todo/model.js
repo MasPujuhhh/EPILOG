@@ -10,15 +10,19 @@ const Todo = sequelize.define('todo', {
           type: DataTypes.STRING,
           primaryKey: true,
         },
+        created_by: {
+          type: DataTypes.STRING,
+          allowNull: false,
+        },
         title: {
           type: DataTypes.STRING,
           allowNull: false,
         },
         status: {
-          type: DataTypes.INTEGER,
+          type: DataTypes.BOOLEAN,
           allowNull: false,
         },
-        date: {
+        due_date: {
           type: DataTypes.DATE,
           allowNull: false,
         }
@@ -28,7 +32,7 @@ const Todo = sequelize.define('todo', {
       }
 )
 
-Todo.belongsTo(UserModel, { foreignKey: 'user_id' });
-UserModel.hasMany(Todo, { foreignKey: 'user_id' });
+// Todo.belongsTo(UserModel, { foreignKey: 'user_id' });
+// UserModel.hasMany(Todo, { foreignKey: 'user_id' });
 
 export default Todo

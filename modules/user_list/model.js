@@ -1,26 +1,23 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../../config/connection.js";
 
+import TodoModel from "../todo/model.js";
 import UserModel from "../users/model.js";
 
 // class User extends Model {}
-const Notification = sequelize.define('Notification', {
+const UserList = sequelize.define('user_list', {
         // Model attributes are defined here
         id: {
           type: DataTypes.STRING,
           primaryKey: true,
         },
-        report: {
-          type: DataTypes.TEXT,
+        todo_id: {
+          type: DataTypes.STRING,
           allowNull: false,
         },
-        status: {
-          type: DataTypes.INTEGER,
+        user_id: {
+          type: DataTypes.STRING,
           allowNull: false,
-        },
-        comment: {
-          type: DataTypes.INTEGER,
-          allowNull: true,
         }
       }, {
         freezeTableName:true,
@@ -28,7 +25,11 @@ const Notification = sequelize.define('Notification', {
       }
 )
 
-Notification.belongsTo(UserModel, { foreignKey: 'user_id' });
-UserModel.hasMany(Notification, { foreignKey: 'user_id' });
+UserList.belongsTo(TodoModel, { foreignKey: 'todo_id' });
+TodoModel.hasMany(UserList, { foreignKey: 'todo_id' });
 
-export default Notification
+
+UserList.belongsTo(UserModel, { foreignKey: 'user_id' });
+UserModel.hasMany(UserList, { foreignKey: 'user_id' });
+
+export default UserList

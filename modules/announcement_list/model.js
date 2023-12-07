@@ -2,9 +2,10 @@ import { DataTypes } from "sequelize";
 import sequelize from "../../config/connection.js";
 
 import UserModel from "../users/model.js";
+import AnnouncementModel from "../announcement/model.js";
 
-// class Certificate extends Model {}
-const Certificate = sequelize.define('certificate', {
+// class User extends Model {}
+const Announcement = sequelize.define('announcement_list', {
         // Model attributes are defined here
         id: {
           type: DataTypes.STRING,
@@ -14,21 +15,20 @@ const Certificate = sequelize.define('certificate', {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        title: {
+        announcement_id: {
           type: DataTypes.STRING,
           allowNull: false,
         },
-        url: {
-          type: DataTypes.TEXT,
-          allowNull: false,
-        }
       }, {
         freezeTableName:true,
         paranoid:true,
       }
 )
 
-Certificate.belongsTo(UserModel, { foreignKey: 'user_id' });
-UserModel.hasMany(Certificate, { foreignKey: 'user_id' });
+Announcement.belongsTo(UserModel, { foreignKey: 'user_id' });
+UserModel.hasMany(Announcement, { foreignKey: 'user_id' });
 
-export default Certificate
+Announcement.belongsTo(AnnouncementModel, { foreignKey: 'announcemenet_id' });
+AnnouncementModel.hasMany(Announcement, { foreignKey: 'announcemenet_id' });
+
+export default Announcement
